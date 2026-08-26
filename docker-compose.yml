@@ -46,7 +46,7 @@ services:
     container_name: taskflow-auth
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Host=postgres;Database=taskflowdb;Username=postgres;Password=${POSTGRES_PASSWORD:-taskflow}"
+      ConnectionStrings__DefaultConnection: "${ConnectionStrings__DefaultConnection:-Host=postgres;Database=taskflowdb;Username=postgres;Password=${POSTGRES_PASSWORD:-taskflow}}"
       Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
       Jwt__Issuer: TaskFlowAPI
       Jwt__Audience: TaskFlowClient
@@ -65,7 +65,7 @@ services:
     container_name: taskflow-projects
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Host=postgres;Database=taskflowdb;Username=postgres;Password=${POSTGRES_PASSWORD:-taskflow}"
+      ConnectionStrings__DefaultConnection: "${ConnectionStrings__DefaultConnection:-Host=postgres;Database=taskflowdb;Username=postgres;Password=${POSTGRES_PASSWORD:-taskflow}}"
       Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
       Jwt__Issuer: TaskFlowAPI
       Jwt__Audience: TaskFlowClient
@@ -88,7 +88,7 @@ services:
     container_name: taskflow-notifications
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Host=postgres;Database=taskflowdb;Username=postgres;Password=${POSTGRES_PASSWORD:-taskflow}"
+      ConnectionStrings__DefaultConnection: "${ConnectionStrings__DefaultConnection:-Host=postgres;Database=taskflowdb;Username=postgres;Password=${POSTGRES_PASSWORD:-taskflow}}"
       Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
       Jwt__Issuer: TaskFlowAPI
       Jwt__Audience: TaskFlowClient

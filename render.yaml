@@ -29,6 +29,6 @@ services:
         value: "24"
       # Set these in Render dashboard → Environment (never commit real values):
       - key: ConnectionStrings__DefaultConnection
-        sync: false   # ction string: Host=...;Database=...;Username=...;Password=...
+        sync: false   # Host=ep-wispy-tree-azbl11db.c-3.ap-southeast-1.aws.neon.tech;Database=neondb;Username=neondb_owner;Password=<NEON_PASSWORD>;SSL Mode=Require
       - key: Jwt__Secret
         sync: false   # Random 32+ char string
