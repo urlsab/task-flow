@@ -33,7 +33,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Own DbContext — only owns the Notifications table
 builder.Services.AddDbContext<NotificationsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 builder.Services

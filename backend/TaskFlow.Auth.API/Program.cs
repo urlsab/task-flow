@@ -79,7 +79,7 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
+        scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
     }
     catch (Exception ex)
     {

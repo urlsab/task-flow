@@ -47,7 +47,7 @@ public static class InfrastructureServiceExtensions
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             options.EnableSensitiveDataLogging(
                 sensitiveDataLoggingEnabled: Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
             );
