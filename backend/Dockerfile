@@ -8,10 +8,15 @@ WORKDIR /src
 # Docker caches the "dotnet restore" layer. If only .cs files change (no new
 # NuGet packages), restore is skipped on the next build — saves 30-60s.
 COPY TaskFlow.sln .
-COPY TaskFlow.Domain/TaskFlow.Domain.csproj           TaskFlow.Domain/
-COPY TaskFlow.Application/TaskFlow.Application.csproj TaskFlow.Application/
-COPY TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj TaskFlow.Infrastructure/
-COPY TaskFlow.API/TaskFlow.API.csproj                 TaskFlow.API/
+COPY TaskFlow.Domain/TaskFlow.Domain.csproj                     TaskFlow.Domain/
+COPY TaskFlow.Application/TaskFlow.Application.csproj           TaskFlow.Application/
+COPY TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj     TaskFlow.Infrastructure/
+COPY TaskFlow.Shared.Contracts/TaskFlow.Shared.Contracts.csproj TaskFlow.Shared.Contracts/
+COPY TaskFlow.API/TaskFlow.API.csproj                           TaskFlow.API/
+COPY TaskFlow.Gateway/TaskFlow.Gateway.csproj                   TaskFlow.Gateway/
+COPY TaskFlow.Auth.API/TaskFlow.Auth.API.csproj                 TaskFlow.Auth.API/
+COPY TaskFlow.Projects.API/TaskFlow.Projects.API.csproj         TaskFlow.Projects.API/
+COPY TaskFlow.Notifications.API/TaskFlow.Notifications.API.csproj TaskFlow.Notifications.API/
 RUN dotnet restore
 
 # Now copy all source and publish a Release build
