@@ -18,6 +18,9 @@ RUN npm run build -- --configuration=production
 FROM nginx:alpine AS serve
 # Copy only the compiled static files from stage 1
 COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
-# Replace the default nginx config with ours (adds /api proxy + SPA routing)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# nginx processes *.template files in /etc/nginx/templates/ with envsubst at startup.
+# This lets API_URL be injected at runtime without rebuilding the image.
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+# Default for Docker Compose local dev — Railway overrides this env var per service
+ENV API_URL=http://gateway:5000
 EXPOSE 80

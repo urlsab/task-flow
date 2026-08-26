@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY TaskFlow.sln .
+COPY TaskFlow.Shared.Contracts/TaskFlow.Shared.Contracts.csproj TaskFlow.Shared.Contracts/
+COPY TaskFlow.Notifications.API/TaskFlow.Notifications.API.csproj TaskFlow.Notifications.API/
+RUN dotnet restore TaskFlow.Notifications.API/TaskFlow.Notifications.API.csproj
+COPY . .
+RUN dotnet publish TaskFlow.Notifications.API/TaskFlow.Notifications.API.csproj -c Release -o /app/publish --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+ENV ASPNETCORE_HTTP_PORTS=5003
+EXPOSE 5003
+ENTRYPOINT ["dotnet", "TaskFlow.Notifications.API.dll"]

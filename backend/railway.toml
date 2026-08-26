@@ -1,0 +1,23 @@
+# railway.toml — Gateway service (root dir: backend/)
+# In Railway dashboard: set Root Directory = "backend" for all .NET services,
+# then override "Dockerfile Path" per service (auth=Dockerfile.auth, etc.)
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.gateway"
+
+[deploy]
+numReplicas = 1
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Required env vars — set these in Railway dashboard under each service:
+# Jwt__Secret          = (from Railway shared variable or secret)
+# Jwt__Issuer          = TaskFlowAPI
+# Jwt__Audience        = TaskFlowClient
+# ASPNETCORE_HTTP_PORTS = 5000
+# ReverseProxy__Clusters__auth-cluster__Destinations__primary__Address         = http://auth-api.railway.internal:5001/
+# ReverseProxy__Clusters__projects-cluster__Destinations__primary__Address     = http://projects-api.railway.internal:5002/
+# ReverseProxy__Clusters__notifications-cluster__Destinations__primary__Address = http://notifications-api.railway.internal:5003/

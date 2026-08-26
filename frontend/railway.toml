@@ -1,0 +1,15 @@
+# railway.toml — Angular frontend (root dir: frontend/)
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+numReplicas = 1
+healthcheckPath = "/"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+# Required env vars:
+# API_URL = http://gateway.railway.internal:5000   (Railway private networking)

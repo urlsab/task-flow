@@ -23,6 +23,7 @@ dist/
 
 # Docker
 .env
+.env.railway
 
 # OS
 .DS_Store
