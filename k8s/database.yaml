@@ -1,0 +1,88 @@
+---
+# PersistentVolumeClaim: requests storage from the cluster.
+# The cluster provisions the actual disk. Data survives pod restarts.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlserver-pvc
+  namespace: taskflow
+spec:
+  accessModes:
+    - ReadWriteOnce   # mounted by one node at a time (correct for a single DB)
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# StatefulSet: like a Deployment but gives each pod a stable network identity
+# and ordered startup/shutdown. Used for databases where identity matters.
+# Pod names: sqlserver-0, sqlserver-1 (predictable, not random like Deployments).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sqlserver
+  namespace: taskflow
+spec:
+  serviceName: sqlserver-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqlserver
+  template:
+    metadata:
+      labels:
+        app: sqlserver
+    spec:
+      containers:
+        - name: sqlserver
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: MSSQL_SA_PASSWORD
+          volumeMounts:
+            - name: sqlserver-storage
+              mountPath: /var/opt/mssql
+          readinessProbe:
+            # Readiness: pod receives traffic only when this succeeds.
+            # Replaces docker-compose's depends_on: condition: service_healthy.
+            exec:
+              command: ["/bin/bash", "-c",
+                "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -C -b"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 10
+          livenessProbe:
+            # Liveness: if this fails, Kubernetes restarts the pod.
+            exec:
+              command: ["/bin/bash", "-c",
+                "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -C -b"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: sqlserver-storage
+          persistentVolumeClaim:
+            claimName: sqlserver-pvc
+
+---
+# ClusterIP Service: exposes the pod on an internal cluster IP.
+# "sqlserver-service" resolves to this IP via cluster DNS in all other pods.
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver-service
+  namespace: taskflow
+spec:
+  selector:
+    app: sqlserver
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+  type: ClusterIP

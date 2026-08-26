@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: taskflow-ingress
+  namespace: taskflow
+  # All API traffic enters through the YARP Gateway (gateway-service:5000).
+  # The gateway routes internally to auth/projects/notifications services.
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: taskflow.local
+      http:
+        paths:
+          # All /api/* traffic goes to the YARP gateway — it routes to the right microservice
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 5000
+          # All other traffic goes to the Angular frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80

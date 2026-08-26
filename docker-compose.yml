@@ -1,0 +1,136 @@
+services:
+
+  # ── SQL Server ─────────────────────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: taskflow-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-TaskFlow@123}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -C -b"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 45s
+
+  # ── RabbitMQ ───────────────────────────────────────────────────────────
+  # Message broker for async inter-service communication.
+  # Management UI: http://localhost:15672  (guest/guest)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: taskflow-rabbitmq
+    ports:
+      - "5672:5672"    # AMQP — used by MassTransit inside the Docker network
+      - "15672:15672"  # Management UI — browse queues, inspect messages
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── Auth microservice ──────────────────────────────────────────────────
+  auth-api:
+    build:
+      context: ./backend
+      dockerfile: TaskFlow.Auth.API/Dockerfile
+    container_name: taskflow-auth
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TaskFlowDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-TaskFlow@123};TrustServerCertificate=true"
+      Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
+      Jwt__Issuer: TaskFlowAPI
+      Jwt__Audience: TaskFlowClient
+      Jwt__ExpiresInHours: "24"
+    ports:
+      - "5001:5001"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  # ── Projects microservice ──────────────────────────────────────────────
+  projects-api:
+    build:
+      context: ./backend
+      dockerfile: TaskFlow.Projects.API/Dockerfile
+    container_name: taskflow-projects
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TaskFlowDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-TaskFlow@123};TrustServerCertificate=true"
+      Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
+      Jwt__Issuer: TaskFlowAPI
+      Jwt__Audience: TaskFlowClient
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    ports:
+      - "5002:5002"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # ── Notifications microservice ─────────────────────────────────────────
+  notifications-api:
+    build:
+      context: ./backend
+      dockerfile: TaskFlow.Notifications.API/Dockerfile
+    container_name: taskflow-notifications
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TaskFlowDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-TaskFlow@123};TrustServerCertificate=true"
+      Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
+      Jwt__Issuer: TaskFlowAPI
+      Jwt__Audience: TaskFlowClient
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    ports:
+      - "5003:5003"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # ── API Gateway (YARP) ─────────────────────────────────────────────────
+  # Single entry point for the frontend. Routes to auth/projects/notifications services.
+  gateway:
+    build:
+      context: ./backend
+      dockerfile: TaskFlow.Gateway/Dockerfile
+    container_name: taskflow-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Jwt__Secret: ${JWT_SECRET:-taskflow-dev-secret-replace-this-in-production-min32chars!}
+      Jwt__Issuer: TaskFlowAPI
+      Jwt__Audience: TaskFlowClient
+    ports:
+      - "5000:5000"
+    depends_on:
+      - auth-api
+      - projects-api
+      - notifications-api
+
+  # ── Frontend (Angular + Nginx) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taskflow-ui
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
+
+volumes:
+  sqlserver-data:

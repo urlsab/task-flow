@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taskflow-config
+  namespace: taskflow
+data:
+  ASPNETCORE_ENVIRONMENT: Development
+  Jwt__Issuer: TaskFlowAPI
+  Jwt__Audience: TaskFlowClient
+  Jwt__ExpiresInHours: "24"
+  RabbitMQ__Host: rabbitmq-service
+  RabbitMQ__VirtualHost: /
+  RabbitMQ__Username: guest

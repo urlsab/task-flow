@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: taskflow
+  # Deployment: describes desired state for stateless pods.
+  # Kubernetes continuously reconciles reality to match this spec.
+spec:
+  replicas: 2   # run 2 pods simultaneously for availability
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: taskflow-backend:latest
+          # IfNotPresent: use locally-built image; don't attempt registry pull.
+          # For production: push to a registry and use Always.
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            # Non-sensitive config from ConfigMap
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-config
+                  key: Jwt__Issuer
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-config
+                  key: Jwt__Audience
+            - name: Jwt__ExpiresInHours
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-config
+                  key: Jwt__ExpiresInHours
+            # Sensitive values from Secret
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: MSSQL_SA_PASSWORD
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: JWT_SECRET
+            # $(VAR_NAME) syntax: Kubernetes resolves env vars defined above in the same list.
+            # The hostname "sqlserver-service" resolves via cluster DNS within the namespace.
+            - name: ConnectionStrings__DefaultConnection
+              value: "Server=sqlserver-service,1433;Database=TaskFlowDb;User Id=sa;Password=$(MSSQL_SA_PASSWORD);TrustServerCertificate=true"
+          readinessProbe:
+            # Pod only receives traffic once /api/health returns 200.
+            # Prevents requests hitting a pod before DB migrations complete.
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            # If /api/health fails repeatedly, Kubernetes restarts the pod.
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 40
+            periodSeconds: 20

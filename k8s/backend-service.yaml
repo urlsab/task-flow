@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: taskflow
+  # ClusterIP Service: gives the backend pods a stable internal IP and DNS name.
+  # Any pod in the cluster can reach the backend at "backend-service:5000".
+  # The Service load-balances across all pods matching selector app=backend.
+spec:
+  selector:
+    app: backend       # routes to pods with this label
+  ports:
+    - protocol: TCP
+      port: 5000       # port the Service listens on
+      targetPort: 5000 # port the container listens on
+  type: ClusterIP      # internal only — not reachable from outside the cluster

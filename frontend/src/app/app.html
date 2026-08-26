@@ -1,0 +1,15 @@
+@if (auth.isAuthenticated()) {
+  <mat-toolbar color="primary">
+    <span>? TaskFlow</span>
+    <span class="spacer"></span>
+    <a mat-button routerLink="/dashboard">Dashboard</a>
+    <a mat-button routerLink="/projects">Projects</a>
+    <span class="user-name">{{ auth.currentUser()?.fullName }}</span>
+    <button mat-icon-button (click)="auth.logout()" title="Sign out">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+}
+<main class="content">
+  <router-outlet />
+</main>

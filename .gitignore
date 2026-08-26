@@ -1,0 +1,29 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.DotSettings
+
+# EF Core
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets (never commit real credentials)
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+
+# Node / Angular (added in Phase 5)
+node_modules/
+dist/
+.angular/
+
+# Docker
+.env
+
+# OS
+.DS_Store
+Thumbs.db
