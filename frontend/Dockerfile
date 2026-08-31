@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy manifests first. Docker caches this layer; if package.json doesn't
 # change, npm ci is skipped on subsequent builds (saves ~60s per rebuild).
 COPY package*.json ./
-RUN npm ci --silent
+RUN npm ci --silent --legacy-peer-deps
 
 COPY . .
 # --configuration=production uses environment.ts (apiUrl: '') not environment.development.ts
