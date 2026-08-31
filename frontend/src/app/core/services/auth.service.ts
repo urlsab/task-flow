@@ -50,6 +50,23 @@ export class AuthService {
 
   private loadFromStorage(): AuthResponse | null {
     const raw = localStorage.getItem('tf_user');
-    return raw ? (JSON.parse(raw) as AuthResponse) : null;
+    if (!raw) return null;
+    const user = JSON.parse(raw) as AuthResponse;
+    // Decode the JWT payload (base64url, no signature check) to read the exp claim.
+    // If the token is expired, discard it so the user is sent to login instead of hitting 401.
+    if (this.isTokenExpired(user.token)) {
+      localStorage.removeItem('tf_user');
+      return null;
+    }
+    return user;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true; // treat malformed tokens as expired
+    }
   }
 }

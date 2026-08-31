@@ -28,3 +28,9 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+.neon
+
+# AI tooling (Copilot / Claude workspace configs)
+.agents/
+.claude/
+skills-lock.json
