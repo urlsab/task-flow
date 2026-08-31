@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin, switchMap } from 'rxjs';
 import { map, of } from 'rxjs';
 import { MatCard, MatCardHeader, MatCardContent, MatCardActions, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
@@ -71,6 +72,7 @@ interface DashboardEntry { project: Project; stats: ProjectStats; }
 export class DashboardComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly projectService = inject(ProjectService);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly loading = signal(true);
   readonly entries = signal<DashboardEntry[]>([]);
@@ -94,7 +96,10 @@ export class DashboardComponent implements OnInit {
       })
     ).subscribe({
       next: entries => { this.entries.set(entries); this.loading.set(false); },
-      error: ()      => this.loading.set(false)
+      error: (err)  => {
+        this.loading.set(false);
+        this.snackBar.open(err?.error?.error ?? 'Failed to load dashboard', 'Close', { duration: 6000 });
+      }
     });
   }
 }

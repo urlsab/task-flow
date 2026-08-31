@@ -105,7 +105,10 @@ export class ProjectListComponent implements OnInit {
   ngOnInit(): void {
     this.projectService.getAll().subscribe({
       next: p => { this.projects.set(p); this.loading.set(false); },
-      error: () => this.loading.set(false)
+      error: (err) => {
+        this.loading.set(false);
+        this.snackBar.open(err?.error?.error ?? 'Failed to load projects', 'Close', { duration: 6000 });
+      }
     });
   }
 
@@ -122,7 +125,10 @@ export class ProjectListComponent implements OnInit {
         this.form.reset();
         this.snackBar.open('Project created!', '', { duration: 3000 });
       },
-      error: () => this.saving.set(false)
+      error: (err) => {
+        this.saving.set(false);
+        this.snackBar.open(err?.error?.error ?? 'Failed to create project', 'Close', { duration: 6000 });
+      }
     });
   }
 }

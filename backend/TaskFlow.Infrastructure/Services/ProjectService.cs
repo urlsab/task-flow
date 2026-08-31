@@ -19,6 +19,7 @@ public class ProjectService : IProjectService
         // No Task rows are loaded into memory; only the aggregate value is fetched.
         return await _db.Projects
             .Where(p => p.OwnerId == userId || p.Members.Any(m => m.UserId == userId))
+            .OrderBy(p => p.Name)
             .Select(p => new ProjectResponse(
                 p.Id,
                 p.Name,
@@ -28,7 +29,6 @@ public class ProjectService : IProjectService
                 p.CreatedAt,
                 p.Tasks.Count
             ))
-            .OrderBy(p => p.Name)
             .ToListAsync();
     }
 
