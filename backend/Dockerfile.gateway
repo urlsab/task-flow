@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+ADD https://netfree.link/cacert/united/x2/unix.sh /home/netfree-unix-ca.sh
+RUN cat /home/netfree-unix-ca.sh | sh
 COPY TaskFlow.sln .
 COPY TaskFlow.Gateway/TaskFlow.Gateway.csproj TaskFlow.Gateway/
 RUN dotnet restore TaskFlow.Gateway/TaskFlow.Gateway.csproj

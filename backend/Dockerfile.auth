@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+ADD https://netfree.link/cacert/united/x2/unix.sh /home/netfree-unix-ca.sh
+RUN cat /home/netfree-unix-ca.sh | sh
 COPY TaskFlow.sln .
 COPY TaskFlow.Domain/TaskFlow.Domain.csproj                     TaskFlow.Domain/
 COPY TaskFlow.Application/TaskFlow.Application.csproj           TaskFlow.Application/

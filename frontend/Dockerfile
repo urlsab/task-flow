@@ -4,8 +4,11 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# Copy manifests first. Docker caches this layer; if package.json doesn't
-# change, npm ci is skipped on subsequent builds (saves ~60s per rebuild).
+# Install Netfree SSL certificate so npm can reach the registry through the filter
+ADD https://netfree.link/cacert/united/x2/unix.sh /home/netfree-unix-ca.sh
+RUN cat /home/netfree-unix-ca.sh | sh
+ENV NODE_EXTRA_CA_CERTS=/etc/ca-bundle.crt
+
 COPY package*.json ./
 RUN npm ci --silent --legacy-peer-deps
 

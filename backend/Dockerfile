@@ -4,6 +4,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+# Install Netfree SSL certificate so dotnet restore can reach NuGet through the filter
+ADD https://netfree.link/cacert/united/x2/unix.sh /home/netfree-unix-ca.sh
+RUN cat /home/netfree-unix-ca.sh | sh
+
 # Copy solution + project files first (without source code).
 # Docker caches the "dotnet restore" layer. If only .cs files change (no new
 # NuGet packages), restore is skipped on the next build — saves 30-60s.
