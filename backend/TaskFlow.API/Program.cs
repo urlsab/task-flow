@@ -107,6 +107,7 @@ using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         db.Database.EnsureCreated();
+        EnsureUserTableCompatibility(db);
     }
     catch (Exception ex)
     {
@@ -116,3 +117,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static void EnsureUserTableCompatibility(AppDbContext db)
+{
+    db.Database.ExecuteSqlRaw(@"ALTER TABLE IF EXISTS ""Users"" ADD COLUMN IF NOT EXISTS ""Username"" text;");
+    db.Database.ExecuteSqlRaw(@"ALTER TABLE IF EXISTS ""Users"" ADD COLUMN IF NOT EXISTS ""PasswordHash"" text;");
+    db.Database.ExecuteSqlRaw(@"ALTER TABLE IF EXISTS ""Users"" ADD COLUMN IF NOT EXISTS ""FullName"" text;");
+    db.Database.ExecuteSqlRaw(@"ALTER TABLE IF EXISTS ""Users"" ADD COLUMN IF NOT EXISTS ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT NOW();");
+    db.Database.ExecuteSqlRaw(@"CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Users_Username"" ON ""Users"" (""Username"");");
+}
