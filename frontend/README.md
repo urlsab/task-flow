@@ -1,6 +1,14 @@
-# Frontend
+# Frontend - מערכת גבאי בית כנסת
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.0.
+אפליקציית Angular בעברית (RTL) לניהול כספים של בית כנסת עבור גבאים:
+
+- התחברות דרך שם משתמש וסיסמה
+- דאשבורד כספים: הכנסות, הוצאות, תרומות, קבלות וחובות
+- מעקב שמות מתפללים לפי סטטוס תשלום
+- סינון רשומות לפי חיפוש, סוג וסטטוס
+- תמיכה ב-PWA (Installable Web App)
+- פורטל מנהל נסתר לניהול גבאים (הוספה/מחיקה)
+- התראות דפדפן/מכשיר עבור תזכורות גבייה ושמירה מוצלחת
 
 ## Development server
 
@@ -11,6 +19,21 @@ ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+> ב-Production האפליקציה נרשמת כ-Service Worker ונטענת כ-PWA.
+
+## פורטל מנהל (סודי)
+
+- כתובת: `/m-root-admin/login`
+- התחברות מנהל מבוצעת מול ה-API בנתיב `POST /api/admin/login`
+- פרטי מנהל מוגדרים בקובץ [appsettings.json](../backend/TaskFlow.API/appsettings.json) תחת `AdminPortal`
+
+## PWA והתקנה לטלפון
+
+- ניתן להתקין את האפליקציה ישירות מהדפדפן (ללא חנות) דרך כפתור "התקנה לטלפון" בדאשבורד.
+- לאחר התקנה, האפליקציה נפתחת במצב עצמאי (Standalone) כמו אפליקציה רגילה.
+- להפעלת התראות יש ללחוץ בדאשבורד על "הפעלת התראות" ולאשר הרשאה בדפדפן.
+- התראות עובדות רק ב-HTTPS או ב-`localhost` בזמן פיתוח.
 
 ## Code scaffolding
 

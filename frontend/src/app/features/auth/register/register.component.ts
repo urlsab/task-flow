@@ -36,10 +36,10 @@ import { AuthService } from '../../../core/services/auth.service';
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" autocomplete="email" />
-              @if (form.get('email')?.invalid && form.get('email')?.touched) {
-                <mat-error>Enter a valid email address</mat-error>
+              <mat-label>שם משתמש</mat-label>
+              <input matInput formControlName="username" autocomplete="username" />
+              @if (form.get('username')?.invalid && form.get('username')?.touched) {
+                <mat-error>יש להזין שם משתמש</mat-error>
               }
             </mat-form-field>
 
@@ -88,7 +88,7 @@ export class RegisterComponent {
 
   readonly form = this.fb.group({
     fullName: ['', Validators.required],
-    email:    ['', [Validators.required, Validators.email]],
+    username: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 

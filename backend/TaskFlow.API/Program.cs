@@ -61,12 +61,17 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPortalOnly", policy =>
+        policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "AdminPortal"));
+});
 
 builder.Services.AddCors(options =>
     options.AddPolicy("Angular", policy =>
         policy.WithOrigins(
                   "http://localhost:4200",
+                  "http://localhost:4201",
                   "https://task-flow-frontend-seven-tau.vercel.app"
               )
               .AllowAnyHeader()

@@ -1,3 +1,68 @@
 .spacer { flex: 1 1 auto; }
-.user-name { font-size: 14px; margin: 0 12px; opacity: 0.9; }
-.content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(120deg, #1565c0, #5e35b1) !important;
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.9);
+    padding: 2px;
+    box-shadow: 0 2px 8px rgba(18, 25, 40, 0.18);
+  }
+}
+
+.user-name {
+  font-size: 13px;
+  margin: 0 10px;
+  opacity: 0.95;
+}
+
+.content {
+  padding: 14px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content.authenticated {
+  max-width: 460px;
+  min-height: calc(100vh - 64px);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.85) 35%),
+    url('/backgrounds/heichal.svg');
+  background-size: cover, 860px auto;
+  background-position: center, left -230px bottom -10px;
+  background-repeat: no-repeat, no-repeat;
+  color: var(--tf-text);
+  transition: background 200ms ease, color 200ms ease;
+}
+
+body.dark-theme .content.authenticated {
+  background-image:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.76) 35%),
+    url('/backgrounds/heichal.svg');
+}
+
+@media (max-width: 768px) {
+  .content.authenticated {
+    max-width: 100%;
+    min-height: calc(100vh - 56px);
+    border-radius: 0;
+  }
+
+  .app-toolbar .user-name {
+    display: none;
+  }
+}

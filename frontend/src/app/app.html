@@ -1,15 +1,23 @@
 @if (auth.isAuthenticated()) {
-  <mat-toolbar color="primary">
-    <span>? TaskFlow</span>
+  <mat-toolbar class="app-toolbar" color="primary">
+    <span class="brand">
+      <img src="/icons/igabi-logo.svg" alt="iGabi" class="brand-logo" />
+      <span>iGabi</span>
+    </span>
     <span class="spacer"></span>
-    <a mat-button routerLink="/dashboard">Dashboard</a>
-    <a mat-button routerLink="/projects">Projects</a>
+    <a mat-button routerLink="/dashboard">
+      <mat-icon>space_dashboard</mat-icon>
+      דאשבורד
+    </a>
+    <button mat-icon-button (click)="toggleTheme()" [title]="darkMode ? 'מצב בהיר' : 'מצב כהה'">
+      <mat-icon>{{ darkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
     <span class="user-name">{{ auth.currentUser()?.fullName }}</span>
-    <button mat-icon-button (click)="auth.logout()" title="Sign out">
+    <button mat-icon-button (click)="auth.logout()" title="התנתקות">
       <mat-icon>logout</mat-icon>
     </button>
   </mat-toolbar>
 }
-<main class="content">
+<main class="content" [class.authenticated]="auth.isAuthenticated()">
   <router-outlet />
 </main>

@@ -25,12 +25,13 @@ public class AuthService : IAuthService
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
         // AnyAsync generates: SELECT CASE WHEN EXISTS(...) THEN 1 ELSE 0 END
-        if (await _db.Users.AnyAsync(u => u.Email == request.Email.ToLower()))
-            throw new ArgumentException("A user with this email already exists.");
+        var normalizedUsername = request.Username.Trim().ToLowerInvariant();
+        if (await _db.Users.AnyAsync(u => u.Username == normalizedUsername))
+            throw new ArgumentException("משתמש בשם זה כבר קיים.");
 
         var user = new User
         {
-            Email = request.Email.ToLower(),
+            Username = normalizedUsername,
             // BCrypt.HashPassword salts + hashes — never store raw passwords
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FullName = request.FullName
@@ -44,19 +45,20 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
-        // We return the same message for wrong email or wrong password — prevents user enumeration
+        // We return the same message for wrong username or wrong password — prevents user enumeration
+        var normalizedUsername = request.Username.Trim().ToLowerInvariant();
         var user = await _db.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email.ToLower())
-            ?? throw new UnauthorizedAccessException("Invalid email or password.");
+            .FirstOrDefaultAsync(u => u.Username == normalizedUsername)
+            ?? throw new UnauthorizedAccessException("שם משתמש או סיסמה שגויים.");
 
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            throw new UnauthorizedAccessException("Invalid email or password.");
+            throw new UnauthorizedAccessException("שם משתמש או סיסמה שגויים.");
 
         return BuildAuthResponse(user);
     }
 
     private AuthResponse BuildAuthResponse(User user) =>
-        new(GenerateToken(user), user.Id, user.Email, user.FullName);
+        new(GenerateToken(user), user.Id, user.Username, user.FullName);
 
     private string GenerateToken(User user)
     {
@@ -70,8 +72,8 @@ public class AuthService : IAuthService
             [
                 // NameIdentifier is the standard claim for a numeric user ID
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.FullName)
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.GivenName, user.Username)
             ],
             expires: DateTime.UtcNow.AddHours(double.Parse(jwt["ExpiresInHours"]!)),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)

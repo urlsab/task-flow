@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+    public DbSet<FinancialRecord> FinancialRecords => Set<FinancialRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -48,9 +49,22 @@ public class AppDbContext : DbContext
             .HasForeignKey(p => p.OwnerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Unique index on email — enforced at DB level, not just in app code
+        // Unique index on username — enforced at DB level, not just in app code
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
+            .HasIndex(u => u.Username)
             .IsUnique();
+
+        modelBuilder.Entity<FinancialRecord>()
+            .Property(fr => fr.Amount)
+            .HasPrecision(14, 2);
+
+        modelBuilder.Entity<FinancialRecord>()
+            .HasOne(fr => fr.User)
+            .WithMany(u => u.FinancialRecords)
+            .HasForeignKey(fr => fr.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FinancialRecord>()
+            .HasIndex(fr => new { fr.UserId, fr.Date });
     }
 }

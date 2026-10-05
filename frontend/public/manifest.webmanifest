@@ -1,0 +1,39 @@
+{
+  "name": "iGabi",
+  "short_name": "iGabi",
+  "description": "iGabi - מערכת CRM לגבאי בית כנסת לניהול הכנסות, הוצאות, תרומות, קבלות וחובות",
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "he",
+  "dir": "rtl",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/igabi-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "דאשבורד כספים",
+      "short_name": "דאשבורד",
+      "url": "/dashboard"
+    },
+    {
+      "name": "הוספת רשומה חדשה",
+      "short_name": "רשומה חדשה",
+      "url": "/dashboard#add-record"
+    }
+  ]
+}

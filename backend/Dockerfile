@@ -7,6 +7,7 @@ WORKDIR /src
 # Install Netfree SSL certificate so dotnet restore can reach NuGet through the filter
 ADD https://netfree.link/cacert/united/x2/unix.sh /home/netfree-unix-ca.sh
 RUN cat /home/netfree-unix-ca.sh | sh
+ENV SSL_CERT_FILE=/etc/ca-bundle.crt
 
 # Copy solution + project files first (without source code).
 # Docker caches the "dotnet restore" layer. If only .cs files change (no new

@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-            Email = User.FindFirst(ClaimTypes.Email)?.Value,
+            Username = User.FindFirst(ClaimTypes.GivenName)?.Value,
             FullName = User.FindFirst(ClaimTypes.Name)?.Value
         });
     }

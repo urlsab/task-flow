@@ -13,4 +13,25 @@ import { AuthService } from './core/services/auth.service';
 })
 export class App {
   readonly auth = inject(AuthService);
+  darkMode = this.initTheme();
+
+  toggleTheme(): void {
+    const next = !this.darkMode;
+    this.applyTheme(next);
+  }
+
+  private initTheme(): boolean {
+    const stored = localStorage.getItem('tf_dark_theme');
+    const resolved = stored === null
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : stored === '1';
+    this.applyTheme(resolved);
+    return resolved;
+  }
+
+  private applyTheme(isDark: boolean): void {
+    this.darkMode = isDark;
+    document.body.classList.toggle('dark-theme', isDark);
+    localStorage.setItem('tf_dark_theme', isDark ? '1' : '0');
+  }
 }

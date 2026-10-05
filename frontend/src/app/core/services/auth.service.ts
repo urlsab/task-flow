@@ -22,18 +22,16 @@ export class AuthService {
   readonly token           = computed(() => this._currentUser()?.token ?? null);
 
   login(request: LoginRequest) {
-    // tap() = side effect without altering the stream value (here: persist to storage)
-    // catchError() = intercept errors and transform them before they reach the subscriber
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
       tap(user => this.persist(user)),
-      catchError(err => throwError(() => err.error?.error ?? 'Login failed.'))
+      catchError(err => throwError(() => err.error?.error ?? 'התחברות נכשלה.'))
     );
   }
 
   register(request: RegisterRequest) {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
       tap(user => this.persist(user)),
-      catchError(err => throwError(() => err.error?.error ?? 'Registration failed.'))
+      catchError(err => throwError(() => err.error?.error ?? 'יצירת משתמש נכשלה.'))
     );
   }
 

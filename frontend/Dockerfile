@@ -1,13 +1,14 @@
 # ── Stage 1: Build ────────────────────────────────────────────────────────
 # The Node image compiles the TypeScript and bundles everything.
 # It's ~1 GB but is NEVER shipped — only the output files move to stage 2.
-FROM node:22-alpine AS build
+FROM node:22.17-alpine AS build
 WORKDIR /app
 
 # Install Netfree SSL certificate so npm can reach the registry through the filter
 ADD https://netfree.link/cacert/united/x2/unix.sh /home/netfree-unix-ca.sh
 RUN cat /home/netfree-unix-ca.sh | sh
 ENV NODE_EXTRA_CA_CERTS=/etc/ca-bundle.crt
+ENV SSL_CERT_FILE=/etc/ca-bundle.crt
 
 COPY package*.json ./
 RUN npm ci --silent --legacy-peer-deps
@@ -18,7 +19,7 @@ RUN npm run build -- --configuration=production
 
 # ── Stage 2: Serve ────────────────────────────────────────────────────────
 # nginx:alpine is ~25 MB. The Node SDK is not present in this final image.
-FROM nginx:alpine AS serve
+FROM nginx:1.27-alpine AS serve
 # Copy only the compiled static files from stage 1
 COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 # nginx processes *.template files in /etc/nginx/templates/ with envsubst at startup.

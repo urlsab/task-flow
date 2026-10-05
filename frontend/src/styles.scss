@@ -6,8 +6,31 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+:root {
+  --tf-bg: #f4f7ff;
+  --tf-surface: #ffffff;
+  --tf-surface-soft: #f8faff;
+  --tf-text: #1d2838;
+  --tf-text-muted: #5f6f85;
+  --tf-border: #e4eaf4;
+  --tf-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  --tf-bg-overlay: rgba(244, 247, 255, 0.9);
+}
+
+body.dark-theme {
+  --tf-bg: #0f172a;
+  --tf-surface: #162238;
+  --tf-surface-soft: #1c2b44;
+  --tf-text: #e7edf7;
+  --tf-text-muted: #aec0d9;
+  --tf-border: #2b3a52;
+  --tf-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  --tf-bg-overlay: rgba(15, 23, 42, 0.84);
+}
+
 html {
   height: 100%;
+  direction: rtl;
   @include mat.theme((
     color: (
       primary: mat.$azure-palette,
@@ -27,12 +50,24 @@ body {
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
+  background-color: var(--tf-bg);
+  background-image:
+    linear-gradient(180deg, var(--tf-bg-overlay), var(--tf-bg-overlay)),
+    url('/backgrounds/synagogue.svg'),
+    url('/backgrounds/heichal.svg'),
+    url('/backgrounds/aron.svg'),
+    url('/backgrounds/bimah.svg');
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: cover, 1200px auto, 900px auto, 820px auto, 760px auto;
+  background-position: center, left -120px top 100px, right -220px top 180px, left -210px bottom 100px, right -180px bottom 60px;
+  background-attachment: fixed, fixed, fixed, fixed, fixed;
+  color: var(--tf-text);
   font: var(--mat-sys-body-medium);
 
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  text-align: right;
+  transition: background-color 200ms ease, color 200ms ease, background-image 250ms ease;
 }
 /* You can add global styles to this file, and also import other style files */

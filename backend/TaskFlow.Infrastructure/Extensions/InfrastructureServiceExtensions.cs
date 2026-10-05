@@ -17,6 +17,7 @@ public static class InfrastructureServiceExtensions
     {
         AddDbContext(services, configuration);
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IFinanceService, FinanceService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<ITaskService, TaskService>();
         return services;

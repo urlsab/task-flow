@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
     public IActionResult Me() => Ok(new
     {
         UserId   = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-        Email    = User.FindFirst(ClaimTypes.Email)?.Value,
+        Username = User.FindFirst(ClaimTypes.GivenName)?.Value,
         FullName = User.FindFirst(ClaimTypes.Name)?.Value
     });
 
